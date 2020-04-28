@@ -1,0 +1,33 @@
+body {
+	margin: 0;
+	background: #333;
+	color: #fafafa;
+	font: 1em "Roboto", sans-serif;
+}
+
+input {
+	background: inherit;
+	color: inherit;
+	font: inherit;
+	font-size: 2em;
+	border: transparent 2px solid;
+	border-bottom: black 2px solid;
+	text-align: center;
+	outline: none;
+	transition: border 0.2s ease-in-out;
+}
+
+input:focus {
+	border: black 2px solid;
+}
+
+form {
+	margin: 1.4em 0.2em;
+	display: flex;
+	justify-content: center;
+}
+
+p {
+	font: 1em "Menlo", monospace;
+	color: #e9e9e9;
+}
