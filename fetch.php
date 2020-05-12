@@ -1,5 +1,7 @@
 <?php
-const link = "https://dmginc.gg/di_custom/token-processing/search/SubmitHandle.php";
+$start = microtime(true);
+const MAX = 432000;
+const LINK = "https://dmginc.gg/di_custom/token-processing/search/SubmitHandle.php";
 
 /**
  * @param $a array
@@ -8,7 +10,7 @@ const link = "https://dmginc.gg/di_custom/token-processing/search/SubmitHandle.p
  */
 function getLogs($a, $b)
 {
-	$ch = curl_init(link);
+	$ch = curl_init(LINK);
 	curl_setopt($ch, CURLOPT_POST, 1);
 	curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
 	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
@@ -27,16 +29,28 @@ function getLogs($a, $b)
  */
 function modify($bp)
 {
-	$tmp = [$bp, $bp, $bp, $bp];
-	$tmp[0]["val"] = "Recruit Token";
-	$tmp[1]["val"] = "Apprentice Recruit Token";
-	$tmp[2]["val"] = "Journeyman Recruit Token";
-	$tmp[3]["val"] = "Master Recruit Token";
-	return $tmp;
+	$ret = [$bp, $bp, $bp, $bp];
+	$ret[0]["val"] = "Recruit Token";
+	$ret[1]["val"] = "Apprentice Recruit Token";
+	$ret[2]["val"] = "Journeyman Recruit Token";
+	$ret[3]["val"] = "Master Recruit Token";
+	return $ret;
 }
 
-$ret = [];
-$data = json_decode($_POST["data"]);
+/**
+ * @param $log array
+ * @return string
+ */
+function toStr($log)
+{
+	$str = "<tr>";
+	$str .= implode("<td></td>", [$log["id"], $log["giver_name"], $log["title"], $log["reason"], date("d m Y H:i:s", $log["event_date"])]);
+	$str .= "</tr>";
+	return $str;
+}
+
+$values = [];
+$data = strtolower(json_decode($_POST["data"]));
 $head = [
 	"qcid" => "qc_1",
 	"key" => "member_name",
@@ -54,8 +68,28 @@ $body = [
 	"position" => "2"
 ];
 
-foreach (modify($body) as $value) {
-	array_push($ret, getLogs($head, $value));
+foreach (modify($body) as $value) $values = array_merge($values, getLogs($head, $value));
+
+usort($values, fn($a, $b) => $a->event_date - $b->event_date);
+
+$ret = [];
+$tmp = [];
+
+for ($i = 0; $i < count($values); ++$i) {
+	$time = date($values[$i]->event_date);
+	for ($j = $i; $j < count($values); ++$j) {
+		if (date($values[$j]->event_date) - $time < MAX) {
+			array_push($tmp, $values[$j]);
+		} else {
+			if (count($tmp) >= count($ret)) $ret = $tmp;
+			$tmp = [];
+			break;
+		}
+	}
+}
+
+if (microtime(true) - $start < 4) {
+	usleep(rand(5, 15) * 1e5);
 }
 
 header("Content-Encoding: gzip");

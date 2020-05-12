@@ -2,15 +2,49 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<title>Tokens</title>
+	<title>OK Checker</title>
 	<link href="index.css" rel="stylesheet">
+	<link href="loader.css" rel="stylesheet">
 	<script src="index.js" defer></script>
 </head>
 <body>
-<form>
-	<input type="text" placeholder="Name">
-	<button type="submit" hidden></button>
-</form>
-<p></p>
+<div style="display: none">
+	<img src="assets/img/ok1.png" alt="OK1">
+	<img src="assets/img/ok2.png" alt="OK2">
+	<img src="assets/img/ok3.png" alt="OK3">
+	<img src="assets/img/ok4.png" alt="OK4">
+	<img src="assets/img/ok5.png" alt="OK5">
+</div>
+<div class="holder">
+	<div class='loader loader1'>
+		<div>
+			<div>
+				<div>
+					<div>
+						<div>
+							<div></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="container">
+	<form>
+		<input type="text" placeholder="Name" spellcheck="false" maxlength="64" autofocus>
+		<button type="submit" hidden></button>
+		<p>&nbsp;</p>
+	</form>
+	<table>
+		<tr>
+			<th>ID</th>
+			<th>Token</th>
+			<th>Reason</th>
+			<th>Issuer</th>
+			<th>Date</th>
+		</tr>
+	</table>
+</div>
 </body>
 </html>
