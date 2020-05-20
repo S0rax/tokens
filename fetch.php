@@ -37,18 +37,6 @@ function modify($bp)
 	return $ret;
 }
 
-/**
- * @param $log array
- * @return string
- */
-function toStr($log)
-{
-	$str = "<tr>";
-	$str .= implode("<td></td>", [$log["id"], $log["giver_name"], $log["title"], $log["reason"], date("d m Y H:i:s", $log["event_date"])]);
-	$str .= "</tr>";
-	return $str;
-}
-
 $values = [];
 $data = strtolower(json_decode($_POST["data"]));
 $head = [
@@ -72,12 +60,13 @@ foreach (modify($body) as $value) $values = array_merge($values, getLogs($head, 
 
 usort($values, fn($a, $b) => $a->event_date - $b->event_date);
 
+$length = count($values);
 $ret = [];
 $tmp = [];
 
-for ($i = 0; $i < count($values); ++$i) {
+for ($i = 0; $i < $length; ++$i) {
 	$time = date($values[$i]->event_date);
-	for ($j = $i; $j < count($values); ++$j) {
+	for ($j = $i; $j < $length; ++$j) {
 		if (date($values[$j]->event_date) - $time < MAX) {
 			array_push($tmp, $values[$j]);
 		} else {

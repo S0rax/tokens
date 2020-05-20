@@ -5,11 +5,10 @@
 		return document.querySelectorAll(e);
 	}
 
-	const LINK = "./fetch.php";
 	let active = false;
 
 	async function postValues(data) {
-		return await fetch(LINK, {
+		return await fetch("./fetch.php", {
 			method: "POST",
 			body: "data=" + JSON.stringify(data),
 			headers: {
@@ -53,7 +52,7 @@
 		let str = "<th>ID</th><th>Token</th><th>Reason</th><th>Issuer</th><th>Date</th>";
 		json.forEach((token) => {
 			let values = [token["id"], token["title"], token["reason"], token["giver_name"], new Date(token["event_date"] * 1e3).toLocaleString("en-GB")];
-			str += `<tr><td>${values.join("</th><th>")}</td></tr>`;
+			str += `<tr><td>${values.join("</td><td>")}</td></tr>`;
 		})
 		$("table")[0].innerHTML = str;
 
