@@ -90,17 +90,22 @@ function getTokenLogsUntil(array $logs, int $until): array
 
 
 $start = microtime(true);
-$tokenLogs = getTokenLogsForName(
-	strtolower(
-		filter_input(INPUT_POST, 'name', FILTER_SANITIZE_STRING)
-	)
-);
+$name = strtolower(filter_input(INPUT_POST, 'name', FILTER_SANITIZE_STRING));
+$path = "./cache/" . $name . ".json";
+$cache = file_get_contents($path);
 
-usort($tokenLogs, 'sortByEventDate');
+if ($cache and $start - @filemtime($path) < 600) {
+	$ret = $cache;
+} else {
+	$tokenLogs = getTokenLogsForName($name);
+	usort($tokenLogs, 'sortByEventDate');
+	$ret = json_encode(getLongestTokenLogStreak($tokenLogs));
+	file_put_contents($path, $ret);
+}
 
 if (microtime(true) - $start < 4) {
 	usleep(rand(5, 15) * 1e5);
 }
 
 header("Content-Encoding: gzip");
-echo gzencode(json_encode(getLongestTokenLogStreak($tokenLogs)));
+echo gzencode($ret);
