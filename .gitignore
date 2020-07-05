@@ -4,4 +4,3 @@ test.php
 package.json
 package-lock.json
 node_modules
-cache/*.json
