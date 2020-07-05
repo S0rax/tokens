@@ -90,38 +90,38 @@ function getTokenLogsUntil(array $logs, int $until): array
 }
 
 function getUserDataFromCache(string $name): ?string {
-    $path = getCachePath($name);
+	$path = getCachePath($name);
 
-    if (!file_exists($path)) {
-        return null;
-    }
+	if (!file_exists($path)) {
+		return null;
+	}
 
-    // If cache is too old do not read from it
-    if (getTimeSinceModification($path) > CACHE_TIME_IN_SECONDS) {
-        return null;
-    }
+	// If cache is too old do not read from it
+	if (getTimeSinceModification($path) > CACHE_TIME_IN_SECONDS) {
+		return null;
+	}
 
-    $cache = file_get_contents($path);
-    if (false !== $cache) {
-        return $cache;
-    }
+	$cache = file_get_contents($path);
+	if (false !== $cache) {
+		return $cache;
+	}
 
-    return null;
+	return null;
 }
 
 function getCachePath(string $name): string {
-    return sprintf('./cache/%s.json', $name);
+	return sprintf('./cache/%s.json', $name);
 }
 
 function saveUserDataToCache(string $data, string $name): void {
-    $path = getCachePath($name);
+	$path = getCachePath($name);
 
-    // Do not write cache if it hasn't been older than supposed cache time
-    if (getTimeSinceModification($path) < CACHE_TIME_IN_SECONDS) {
-        return;
-    }
+	// Do not write cache if it hasn't been older than supposed cache time
+	if (getTimeSinceModification($path) < CACHE_TIME_IN_SECONDS) {
+		return;
+	}
 
-    file_put_contents($path, $data);
+	file_put_contents($path, $data);
 }
 
 /**
@@ -131,11 +131,11 @@ function saveUserDataToCache(string $data, string $name): void {
  */
 function getTimeSinceModification(string $path): float
 {
-    if (!file_exists($path)) {
-        return microtime(true);
-    }
+	if (!file_exists($path)) {
+		return microtime(true);
+	}
 
-    return microtime(true) - filemtime($path);
+	return microtime(true) - filemtime($path);
 }
 
 $start = microtime(true);
@@ -144,9 +144,9 @@ $name = strtolower(filter_input(INPUT_POST, 'name', FILTER_SANITIZE_STRING));
 $data = getUserDataFromCache($name);
 
 if (null === $data) {
-    $tokenLogs = getTokenLogsForName($name);
-    usort($tokenLogs, 'sortByEventDate');
-    $data = json_encode(getLongestTokenLogStreak($tokenLogs));
+	$tokenLogs = getTokenLogsForName($name);
+	usort($tokenLogs, 'sortByEventDate');
+	$data = json_encode(getLongestTokenLogStreak($tokenLogs));
 }
 
 saveUserDataToCache($data, $name);
