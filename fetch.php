@@ -1,6 +1,7 @@
 <?php
 const MAX = 432000;
 const LINK = "https://dmginc.gg/di_custom/token-processing/search/SubmitHandle.php";
+const CACHE_TIME_IN_SECONDS = 600;
 
 const TOKEN_TYPES = [
 	"Recruit Token",
@@ -88,24 +89,71 @@ function getTokenLogsUntil(array $logs, int $until): array
 	return $tokenLogs;
 }
 
+function getUserDataFromCache(string $name): ?string {
+	$path = getCachePath($name);
+
+	if (!file_exists($path)) {
+		return null;
+	}
+
+	// If cache is too old do not read from it
+	if (getTimeSinceModification($path) > CACHE_TIME_IN_SECONDS) {
+		return null;
+	}
+
+	$cache = file_get_contents($path);
+	if (false !== $cache) {
+		return $cache;
+	}
+
+	return null;
+}
+
+function getCachePath(string $name): string {
+	return sprintf('./cache/%s.json', $name);
+}
+
+function saveUserDataToCache(string $data, string $name): void {
+	$path = getCachePath($name);
+
+	// Do not write cache if it hasn't been older than supposed cache time
+	if (getTimeSinceModification($path) < CACHE_TIME_IN_SECONDS) {
+		return;
+	}
+
+	file_put_contents($path, $data);
+}
+
+/**
+ * If the given file path does not exist the current timestamp will be returned
+ * @param string $path
+ * @return float
+ */
+function getTimeSinceModification(string $path): float
+{
+	if (!file_exists($path)) {
+		return microtime(true);
+	}
+
+	return microtime(true) - filemtime($path);
+}
 
 $start = microtime(true);
 $name = strtolower(filter_input(INPUT_POST, 'name', FILTER_SANITIZE_STRING));
-$path = "./cache/" . $name . ".json";
-$cache = file_get_contents($path);
 
-if ($cache and $start - @filemtime($path) < 600) {
-	$ret = $cache;
-} else {
+$data = getUserDataFromCache($name);
+
+if (null === $data) {
 	$tokenLogs = getTokenLogsForName($name);
 	usort($tokenLogs, 'sortByEventDate');
-	$ret = json_encode(getLongestTokenLogStreak($tokenLogs));
-	file_put_contents($path, $ret);
+	$data = json_encode(getLongestTokenLogStreak($tokenLogs));
 }
+
+saveUserDataToCache($data, $name);
 
 if (microtime(true) - $start < 4) {
 	usleep(rand(5, 15) * 1e5);
 }
 
 header("Content-Encoding: gzip");
-echo gzencode($ret);
+echo gzencode($data);
